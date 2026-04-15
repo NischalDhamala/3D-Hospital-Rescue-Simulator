@@ -66,5 +66,5 @@
     "explorer.fileNesting.patterns": {
         "*.sln": "*.csproj"
     },
-    "dotnet.defaultSolution": "3D Hospital Rescue Simulator.sln"
+    "dotnet.defaultSolution": "3D-Hospital-Rescue-Simulator.sln"
 }

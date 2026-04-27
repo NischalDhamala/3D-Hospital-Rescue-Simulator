@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using System.Collections.Generic;
 
 public class MissionManager : MonoBehaviour
 {
@@ -7,36 +8,46 @@ public class MissionManager : MonoBehaviour
     public GameObject patient;
     public ParticleSystem bloodEffect;
     public NavMeshAgent ambulanceAgent;
-    public Transform hospitalDestination;
-    public Transform patientInsidePosition; // एम्बुलेन्स भित्रको सिट
+    public Transform patientInsidePosition; 
+
+    [Header("Pathfinding")]
+    public List<Transform> waypoints; 
+    private int currentWaypointIndex = 0;
 
     private bool isPatientFallen = false;
     private bool isLoaded = false;
 
     void Start()
     {
-        // सुरुमा रगत आउने बनाउने
         if (bloodEffect != null) bloodEffect.Play();
+        
+        // Ensure agent is stopped at the very start
+        if (ambulanceAgent != null) 
+            ambulanceAgent.isStopped = true;
     }
 
     void Update()
     {
-        // १. बिरामीलाई ढलाउन (बिस्तारै Rotation परिवर्तन गर्ने)
-        if (!isPatientFallen)
-        {
-            // बिरामीलाई ९० डिग्री ढलाउने (बिस्तारै)
-            Quaternion targetRotation = Quaternion.Euler(90, patient.transform.eulerAngles.y, 0);
-            patient.transform.rotation = Quaternion.Slerp(patient.transform.rotation, targetRotation, Time.deltaTime * 0.5f);
-            
-            // यदि बिरामी लगभग ढलिसक्यो भने
-            if (Quaternion.Angle(patient.transform.rotation, targetRotation) < 5f) 
-                isPatientFallen = true;
-        }
+        // 1. Handle Patient Animation
+        HandlePatientFalling();
 
-        // २. 'F' थिच्दा बिरामीलाई एम्बुलेन्समा हाल्ने र कुदाउने
+        // 2. Press F to start
         if (Input.GetKeyDown(KeyCode.F) && !isLoaded)
         {
             LoadAndDrive();
+        }
+    }
+
+    void HandlePatientFalling()
+    {
+        if (patient != null && !isPatientFallen)
+        {
+            // Gradually tilt patient 90 degrees
+            Quaternion targetRotation = Quaternion.Euler(90, patient.transform.eulerAngles.y, 0);
+            patient.transform.rotation = Quaternion.Slerp(patient.transform.rotation, targetRotation, Time.deltaTime * 0.5f);
+            
+            if (Quaternion.Angle(patient.transform.rotation, targetRotation) < 5f) 
+                isPatientFallen = true;
         }
     }
 
@@ -44,20 +55,33 @@ public class MissionManager : MonoBehaviour
     {
         isLoaded = true;
 
-        // रगत बन्द गर्ने
         if (bloodEffect != null) bloodEffect.Stop();
 
-        // बिरामीलाई एम्बुलेन्स भित्र राख्ने
-        patient.transform.position = patientInsidePosition.position;
-        patient.transform.rotation = patientInsidePosition.rotation;
-        patient.transform.SetParent(this.transform); // एम्बुलेन्ससँगै हिँड्ने बनाउन
+        // Put patient inside ambulance
+        if (patient != null && patientInsidePosition != null)
+        {
+            patient.transform.position = patientInsidePosition.position;
+            patient.transform.rotation = patientInsidePosition.rotation;
+            patient.transform.SetParent(this.transform);
+        }
 
-        // एम्बुलेन्स कुदाउने
-        if (ambulanceAgent != null && hospitalDestination != null)
+        // Start driving to the first waypoint (The Barrier)
+        if (ambulanceAgent != null && waypoints.Count > 0)
         {
             ambulanceAgent.isStopped = false;
-            ambulanceAgent.SetDestination(hospitalDestination.position);
-            Debug.Log("Rescue Successful! Heading to Hospital.");
+            ambulanceAgent.SetDestination(waypoints[0].position);
+            Debug.Log("Driving to Obstacle...");
+        }
+    }
+
+    // This is called by the InformationProximity script automatically
+    public void RedirectAmbulance()
+    {
+        if (waypoints.Count >= 2)
+        {
+            currentWaypointIndex = 1; // Index 1 is the Hospital
+            ambulanceAgent.SetDestination(waypoints[1].position);
+            Debug.Log("Path blocked! Heading to Hospital: " + waypoints[1].name);
         }
     }
 }

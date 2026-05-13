@@ -1,46 +1,68 @@
 using UnityEngine;
 
 /// <summary>
-/// Hides the doctor (NPC) renderers when the player comes within a certain distance.
-/// The player avatar must be tagged "Player". Attach this script to any GameObject
-/// that represents a doctor (or any NPC you want to hide when the player approaches).
+/// Controls doctor NPC visibility and attachment to the ambulance.
+/// Doctors stay visible and ride along with the ambulance once the mission starts.
+/// When not riding, doctors are shown normally in the scene.
+/// Attach this script to any doctor NPC GameObject.
 /// </summary>
 public class DoctorVisibility : MonoBehaviour
 {
-    // Distance at which the doctor starts to hide (in Unity units).
-    [Header("Settings")]
-    public float hideDistance = 5f;
+    // Whether this doctor is currently riding in the ambulance.
+    private bool isRiding = false;
 
-    // Cached reference to the player GameObject.
-    private Transform playerTransform;
-
-    // All renderer components of this doctor (including children).
-    private Renderer[] renderers;
+    // Original parent so we can detach later if needed.
+    private Transform originalParent;
+    // Original local position & rotation (for restoring).
+    private Vector3 originalPosition;
+    private Quaternion originalRotation;
 
     private void Awake()
     {
-        // Find the player by tag once at start.
-        var playerObj = GameObject.FindWithTag("Player");
-        if (playerObj != null)
-            playerTransform = playerObj.transform;
-        else
-            Debug.LogWarning("DoctorVisibility: No GameObject with tag 'Player' found in scene.");
-
-        // Cache renderers to enable/disable quickly.
-        renderers = GetComponentsInChildren<Renderer>(includeInactive: true);
+        originalParent = transform.parent;
+        originalPosition = transform.position;
+        originalRotation = transform.rotation;
     }
 
-    private void Update()
+    /// <summary>
+    /// Call this to make the doctor board the ambulance.
+    /// The doctor stays VISIBLE and moves with the ambulance.
+    /// </summary>
+    public void BoardAmbulance(Transform ambulanceTransform, Vector3 seatOffset)
     {
-        if (playerTransform == null) return;
+        isRiding = true;
+        transform.SetParent(ambulanceTransform);
+        transform.localPosition = seatOffset;
+        transform.localRotation = Quaternion.identity;
 
-        float distance = Vector3.Distance(transform.position, playerTransform.position);
-        bool shouldHide = distance <= hideDistance;
+        // Ensure all renderers are enabled (doctor stays visible)
+        SetRenderersEnabled(true);
+    }
 
+    /// <summary>
+    /// Call this to make the doctor exit the ambulance (e.g., at hospital).
+    /// </summary>
+    public void ExitAmbulance()
+    {
+        isRiding = false;
+        transform.SetParent(originalParent);
+        SetRenderersEnabled(true);
+    }
+
+    /// <summary>
+    /// Hide or show the doctor completely.
+    /// </summary>
+    public void SetVisible(bool visible)
+    {
+        SetRenderersEnabled(visible);
+    }
+
+    private void SetRenderersEnabled(bool enabled)
+    {
+        Renderer[] renderers = GetComponentsInChildren<Renderer>(includeInactive: true);
         foreach (var r in renderers)
         {
-            if (r.enabled != !shouldHide)
-                r.enabled = !shouldHide;
+            r.enabled = enabled;
         }
     }
 }

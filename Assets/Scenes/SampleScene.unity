@@ -1763,27 +1763,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8944336655422409503, guid: f6d148d888ffbf54b9afe9936dfaec1f, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.1830118
+      value: -0.001274599
       objectReference: {fileID: 0}
     - target: {fileID: 8944336655422409503, guid: f6d148d888ffbf54b9afe9936dfaec1f, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.6830129
+      value: 0.7182115
       objectReference: {fileID: 0}
     - target: {fileID: 8944336655422409503, guid: f6d148d888ffbf54b9afe9936dfaec1f, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.00000035157427
+      value: 0.036269095
       objectReference: {fileID: 0}
     - target: {fileID: 8944336655422409503, guid: f6d148d888ffbf54b9afe9936dfaec1f, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.7071069
+      value: 0.69487786
       objectReference: {fileID: 0}
     - target: {fileID: 8944336655422409503, guid: f6d148d888ffbf54b9afe9936dfaec1f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 14.477
+      value: -2.994
       objectReference: {fileID: 0}
     - target: {fileID: 8944336655422409503, guid: f6d148d888ffbf54b9afe9936dfaec1f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 86.033
+      value: 91.968
       objectReference: {fileID: 0}
     - target: {fileID: 8944336655422409503, guid: f6d148d888ffbf54b9afe9936dfaec1f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -1815,8 +1815,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 1601368947}
-  offset: {x: 0, y: 15, z: -10}
+  followDistance: 18
+  height: 10
+  tiltAngle: 45
   smoothSpeed: 5
+  rotSmoothSpeed: 4
 --- !u!1001 &125944301
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -34646,6 +34649,11 @@ MonoBehaviour:
   - {fileID: 1860048298}
   timerText: {fileID: 0}
   statusText: {fileID: 0}
+  doctorSeatOffsets:
+  - {x: -1.2, y: 0, z: -0.5}
+  - {x: 1.2, y: 0, z: -0.5}
+  - {x: -1.2, y: 0, z: 0.5}
+  - {x: 1.2, y: 0, z: 0.5}
 --- !u!4 &1601368947 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1132022550193295568, guid: af1c3e5a3edbe1d4193759238a03cab0, type: 3}
@@ -40661,6 +40669,11 @@ MonoBehaviour:
   waypoints: []
   timerText: {fileID: 0}
   statusText: {fileID: 0}
+  doctorSeatOffsets:
+  - {x: -1.2, y: 0, z: -0.5}
+  - {x: 1.2, y: 0, z: -0.5}
+  - {x: -1.2, y: 0, z: 0.5}
+  - {x: 1.2, y: 0, z: 0.5}
 --- !u!195 &1908148545
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -40695,7 +40708,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36ec8d331449a3d4ba77fe7a3c11cee0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hideDistance: 5
 --- !u!1001 &1908431219
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -41942,6 +41954,11 @@ MonoBehaviour:
   waypoints: []
   timerText: {fileID: 0}
   statusText: {fileID: 0}
+  doctorSeatOffsets:
+  - {x: -1.2, y: 0, z: -0.5}
+  - {x: 1.2, y: 0, z: -0.5}
+  - {x: -1.2, y: 0, z: 0.5}
+  - {x: 1.2, y: 0, z: 0.5}
 --- !u!195 &1987527270
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -41976,7 +41993,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36ec8d331449a3d4ba77fe7a3c11cee0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hideDistance: 5
 --- !u!1001 &1988670883
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -44560,6 +44576,11 @@ MonoBehaviour:
   waypoints: []
   timerText: {fileID: 0}
   statusText: {fileID: 0}
+  doctorSeatOffsets:
+  - {x: -1.2, y: 0, z: -0.5}
+  - {x: 1.2, y: 0, z: -0.5}
+  - {x: -1.2, y: 0, z: 0.5}
+  - {x: 1.2, y: 0, z: 0.5}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

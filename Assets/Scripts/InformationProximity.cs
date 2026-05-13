@@ -4,29 +4,38 @@ using UnityEngine;
 public class InformationProximity : MonoBehaviour
 {
     private List<GameObject> infoBoards = new List<GameObject>();
+    // Reference to ambulance (target) for distance checks
+    private Transform ambulanceTarget;
 
-    void Start()
+    void Awake()
     {
-        // Find all children tagged "Information" and hide them at the start
-        foreach (Transform child in transform)
+        // Find ambulance by tag if not set manually
+        GameObject amb = GameObject.FindWithTag("Ambulance");
+        if (amb != null) ambulanceTarget = amb.transform;
+    }
+
+    void Update()
+    {
+        // If we have a target, check distance and toggle boards accordingly
+        if (ambulanceTarget != null)
         {
-            if (child.CompareTag("Information"))
-            {
-                infoBoards.Add(child.gameObject);
-                child.gameObject.SetActive(false);
-            }
+            float dist = Vector3.Distance(ambulanceTarget.position, transform.position);
+            bool shouldShow = dist <= 5f;
+            SetBoardsActive(shouldShow);
         }
     }
 
+    // Keep OnTriggerEnter/Exit for compatibility (optional)
     private void OnTriggerEnter(Collider other)
     {
-        // Check if the object entering is the Ambulance (tagged Player)
-        if (other.CompareTag("Player")) 
+        if (other.CompareTag("Player") || other.CompareTag("Ambulance"))
         {
             SetBoardsActive(true);
 
             // Tell the Ambulance MissionManager to change route
             MissionManager manager = other.GetComponent<MissionManager>();
+            if (manager == null)
+                manager = other.GetComponentInParent<MissionManager>();
             if (manager != null)
             {
                 manager.RedirectAmbulance();
@@ -36,7 +45,7 @@ public class InformationProximity : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player") || other.CompareTag("Ambulance"))
         {
             SetBoardsActive(false);
         }

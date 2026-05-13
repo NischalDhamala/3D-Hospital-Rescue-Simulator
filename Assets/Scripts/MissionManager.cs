@@ -38,13 +38,22 @@ public class MissionManager : MonoBehaviour
     private bool isPatientFallen = false;
     private bool isLoaded = false;
 
+    [Header("Doctor Seat Offsets")]
+    [Tooltip("Local offset positions where doctors sit inside/on the ambulance")]
+    public Vector3[] doctorSeatOffsets = new Vector3[]
+    {
+        new Vector3(-1.2f, 0f, -0.5f),  // left side
+        new Vector3( 1.2f, 0f, -0.5f),  // right side
+        new Vector3(-1.2f, 0f,  0.5f),  // left rear
+        new Vector3( 1.2f, 0f,  0.5f),  // right rear
+    };
+
     void Start()
     {
-        // Detach any Doctor objects from the ambulance hierarchy so they don't move together
+        // Collect all Doctor-tagged objects (but do NOT detach or hide them yet)
         GameObject[] doctorObjs = GameObject.FindGameObjectsWithTag("Doctor");
         foreach (var d in doctorObjs)
         {
-            d.transform.parent = null; // ensure they are not children of the ambulance
             doctors.Add(d);
         }
 
@@ -89,15 +98,16 @@ public class MissionManager : MonoBehaviour
             }
         }
 
-        // 5. Brake with Space bar (only in AI mode)
-        if (!manualMode && Input.GetKeyDown(KeyCode.Space))
+        // 5. Brake with Space bar — works in BOTH AI and manual mode
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            if (ambulanceAgent != null)
+            if (!manualMode && ambulanceAgent != null)
                 ambulanceAgent.isStopped = true;
+            // Manual mode brake is handled inside AmbulanceController via Space key check
         }
-        if (!manualMode && Input.GetKeyUp(KeyCode.Space))
+        if (Input.GetKeyUp(KeyCode.Space))
         {
-            if (ambulanceAgent != null && missionRunning)
+            if (!manualMode && ambulanceAgent != null && missionRunning)
                 ambulanceAgent.isStopped = false;
         }
     }
@@ -121,60 +131,87 @@ public class MissionManager : MonoBehaviour
 
         if (bloodEffect != null) bloodEffect.Stop();
 
-        // Put patient inside ambulance
+        // --- Put patient inside ambulance (hidden) ---
         if (patient != null && patientInsidePosition != null)
         {
+            patient.transform.SetParent(this.transform);
             patient.transform.position = patientInsidePosition.position;
             patient.transform.rotation = patientInsidePosition.rotation;
-            patient.transform.SetParent(this.transform);
+            // Hide patient renderers (patient is lying inside)
+            SetRenderersEnabled(patient, false);
         }
 
-        // Disable the player avatar movement so only the ambulance moves
+        // --- Hide the player avatar completely (player is "inside" the ambulance) ---
         if (player != null)
         {
-            // Try to disable common controller components (StarterAssets, CharacterController, etc.)
+            // Disable movement controllers so the player doesn't walk out
             var fps = player.GetComponent<StarterAssets.FirstPersonController>();
             if (fps != null) fps.enabled = false;
             var cc = player.GetComponent<UnityEngine.CharacterController>();
             if (cc != null) cc.enabled = false;
-            // Optionally hide the player model
-            var renderers = player.GetComponentsInChildren<Renderer>();
-            foreach (var r in renderers) r.enabled = false;
-        }
 
-        // 1. Move player into ambulance (hide avatar) and hide patient/doctor renderers
-        if (player != null)
-        {
-            // Move player inside the ambulance at the same seat as patient
-            player.transform.position = patientInsidePosition.position;
-            player.transform.rotation = patientInsidePosition.rotation;
+            // Parent player to ambulance so it moves together
             player.transform.SetParent(this.transform);
-            // Hide player mesh renderers
-            var pRends = player.GetComponentsInChildren<Renderer>();
-            foreach (var r in pRends) r.enabled = false;
+            player.transform.localPosition = Vector3.zero;
+            player.transform.localRotation = Quaternion.identity;
+
+            // Hide ALL player renderers completely
+            SetRenderersEnabled(player, false);
+
+            // Also disable any Animator to prevent animation from re-enabling renderers
+            var playerAnimator = player.GetComponent<Animator>();
+            if (playerAnimator != null) playerAnimator.enabled = false;
+            var playerAnimators = player.GetComponentsInChildren<Animator>();
+            foreach (var a in playerAnimators) a.enabled = false;
         }
 
-        // Hide patient renderers (patient is now inside ambulance)
-        if (patient != null)
+        // --- Doctors ride along VISIBLY with the ambulance ---
+        for (int i = 0; i < doctors.Count; i++)
         {
-            var pRends = patient.GetComponentsInChildren<Renderer>();
-            foreach (var r in pRends) r.enabled = false;
+            var doc = doctors[i];
+            if (doc == null) continue;
+
+            // Use the DoctorVisibility component if available
+            var dv = doc.GetComponent<DoctorVisibility>();
+            Vector3 seatOffset = (i < doctorSeatOffsets.Length)
+                ? doctorSeatOffsets[i]
+                : new Vector3(0f, 0f, -1f * (i + 1));
+
+            if (dv != null)
+            {
+                dv.BoardAmbulance(this.transform, seatOffset);
+            }
+            else
+            {
+                // Fallback: manually parent and keep visible
+                doc.transform.SetParent(this.transform);
+                doc.transform.localPosition = seatOffset;
+                doc.transform.localRotation = Quaternion.identity;
+            }
+
+            // Disable any NavMeshAgent on the doctor so they don't fight the parenting
+            var docAgent = doc.GetComponent<NavMeshAgent>();
+            if (docAgent != null) docAgent.enabled = false;
         }
 
-        // Hide all doctors when ambulance starts moving
-        foreach (var doc in doctors)
-        {
-            var dRends = doc.GetComponentsInChildren<Renderer>();
-            foreach (var r in dRends) r.enabled = false;
-        }
-
-        // Start driving to the first waypoint (The Barrier)
+        // --- Start driving to the first waypoint ---
         if (ambulanceAgent != null && waypoints.Count > 0)
         {
             ambulanceAgent.isStopped = false;
             ambulanceAgent.SetDestination(waypoints[0].position);
             Debug.Log("Driving to Obstacle...");
         }
+    }
+
+    /// <summary>
+    /// Helper to enable/disable all renderers on a GameObject and its children.
+    /// </summary>
+    private void SetRenderersEnabled(GameObject go, bool enabled)
+    {
+        if (go == null) return;
+        var renderers = go.GetComponentsInChildren<Renderer>(true);
+        foreach (var r in renderers)
+            r.enabled = enabled;
     }
 
     // This is called by the InformationProximity script automatically

@@ -15,7 +15,7 @@ public class CameraFollow : MonoBehaviour
     public float followDistance = 14f;
 
     [Header("Height above the target")]
-    public float height = 14f;
+    public float height = 12f;
 
     [Header("Tilt angle (degrees, how much to look down)")]
     [Range(10f, 80f)]

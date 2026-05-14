@@ -9,7 +9,7 @@ using UnityEngine;
 public class DoctorVisibility : MonoBehaviour
 {
     // Whether this doctor is currently riding in the ambulance.
-    private bool isRiding = false;
+    public bool IsRiding { get; private set; } = false;
 
     // Original parent so we can detach later if needed.
     private Transform originalParent;
@@ -30,7 +30,7 @@ public class DoctorVisibility : MonoBehaviour
     /// </summary>
     public void BoardAmbulance(Transform ambulanceTransform, Vector3 seatOffset)
     {
-        isRiding = true;
+        IsRiding = true;
         transform.SetParent(ambulanceTransform);
         transform.localPosition = seatOffset;
         transform.localRotation = Quaternion.identity;
@@ -44,7 +44,7 @@ public class DoctorVisibility : MonoBehaviour
     /// </summary>
     public void ExitAmbulance()
     {
-        isRiding = false;
+        IsRiding = false;
         transform.SetParent(originalParent);
         SetRenderersEnabled(true);
     }

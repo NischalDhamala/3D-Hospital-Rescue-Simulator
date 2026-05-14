@@ -34,8 +34,8 @@ public class CameraFollow : MonoBehaviour
     {
         if (target == null)
         {
-            GameObject amb = GameObject.FindWithTag("Ambulance");
-            if (amb != null) target = amb.transform;
+            MissionManager mm = FindFirstObjectByType<MissionManager>();
+            if (mm != null) target = mm.transform;
         }
     }
 

@@ -11,25 +11,18 @@ public class MissionGoal : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        // Check if the colliding object is the ambulance (tagged as "Player")
-        if (other.CompareTag("Player") || other.CompareTag("Ambulance"))
+        // Detect ambulance via MissionManager component instead of tag
+        MissionManager manager = other.GetComponent<MissionManager>();
+        if (manager == null) manager = other.GetComponentInParent<MissionManager>();
+
+        if (manager != null)
         {
-            // Find the MissionManager in the scene (assumes only one exists)
-            MissionManager manager = FindObjectOfType<MissionManager>();
-            if (manager != null)
-            {
-                manager.OnMissionSuccess();
-            }
-            else
-            {
-                Debug.LogWarning("MissionManager not found in scene when goal trigger activated.");
-            }
+            manager.OnMissionSuccess();
 
             // Play success effect if assigned
             if (successEffect != null)
             {
                 var effect = Instantiate(successEffect, transform.position, Quaternion.identity);
-                // Optionally destroy after some time
                 Destroy(effect, 5f);
             }
         }

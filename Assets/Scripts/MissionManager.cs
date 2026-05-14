@@ -17,7 +17,6 @@ public class MissionManager : MonoBehaviour
     public Transform patientInsidePosition; 
 
     [Header("Pathfinding")]
-    private int currentWaypointIndex = 0;
     public List<Transform> waypoints;
     // List to keep track of all Doctor NPCs so we can hide them when the ambulance starts
     private List<GameObject> doctors = new List<GameObject>();
@@ -64,7 +63,7 @@ public class MissionManager : MonoBehaviour
 
         // Auto‑create UI Canvas & Texts if they are not assigned
         SetupUIAndCamera();
-        if (ambulanceAgent != null) ambulanceAgent.gameObject.tag = "Ambulance";
+        // (Removed tag assignment to avoid UnityException: Tag 'Ambulance' is not defined)
     }
 
     void Update()
@@ -144,54 +143,38 @@ public class MissionManager : MonoBehaviour
         // --- Hide the player avatar completely (player is "inside" the ambulance) ---
         if (player != null)
         {
-            // Disable movement controllers so the player doesn't walk out
-            var fps = player.GetComponent<StarterAssets.FirstPersonController>();
-            if (fps != null) fps.enabled = false;
-            var cc = player.GetComponent<UnityEngine.CharacterController>();
-            if (cc != null) cc.enabled = false;
-
             // Parent player to ambulance so it moves together
             player.transform.SetParent(this.transform);
             player.transform.localPosition = Vector3.zero;
             player.transform.localRotation = Quaternion.identity;
 
-            // Hide ALL player renderers completely
-            SetRenderersEnabled(player, false);
-
-            // Also disable any Animator to prevent animation from re-enabling renderers
-            var playerAnimator = player.GetComponent<Animator>();
-            if (playerAnimator != null) playerAnimator.enabled = false;
-            var playerAnimators = player.GetComponentsInChildren<Animator>();
-            foreach (var a in playerAnimators) a.enabled = false;
+            // Deactivate the entire player — this stops ALL scripts, renderers,
+            // animators, and the CharacterController in one go, preventing
+            // "CharacterController.Move called on inactive controller" errors.
+            player.SetActive(false);
         }
 
-        // --- Doctors ride along VISIBLY with the ambulance ---
+        // --- Hide doctors in place (they do NOT follow the ambulance) ---
         for (int i = 0; i < doctors.Count; i++)
         {
             var doc = doctors[i];
             if (doc == null) continue;
 
-            // Use the DoctorVisibility component if available
-            var dv = doc.GetComponent<DoctorVisibility>();
-            Vector3 seatOffset = (i < doctorSeatOffsets.Length)
-                ? doctorSeatOffsets[i]
-                : new Vector3(0f, 0f, -1f * (i + 1));
+            // Disable NavMeshAgent so the doctor stops wandering
+            var docAgent = doc.GetComponent<NavMeshAgent>();
+            if (docAgent != null) docAgent.enabled = false;
 
+            // Hide via DoctorVisibility component if present
+            var dv = doc.GetComponent<DoctorVisibility>();
             if (dv != null)
             {
-                dv.BoardAmbulance(this.transform, seatOffset);
+                dv.SetVisible(false);
             }
             else
             {
-                // Fallback: manually parent and keep visible
-                doc.transform.SetParent(this.transform);
-                doc.transform.localPosition = seatOffset;
-                doc.transform.localRotation = Quaternion.identity;
+                // Fallback: disable all renderers
+                SetRenderersEnabled(doc, false);
             }
-
-            // Disable any NavMeshAgent on the doctor so they don't fight the parenting
-            var docAgent = doc.GetComponent<NavMeshAgent>();
-            if (docAgent != null) docAgent.enabled = false;
         }
 
         // --- Start driving to the first waypoint ---
@@ -219,7 +202,7 @@ public class MissionManager : MonoBehaviour
     {
         if (waypoints.Count >= 2)
         {
-            currentWaypointIndex = 1; // Index 1 is the Hospital
+            // Index 1 is the Hospital
             ambulanceAgent.SetDestination(waypoints[1].position);
             Debug.Log("Path blocked! Heading to Hospital: " + waypoints[1].name);
         }

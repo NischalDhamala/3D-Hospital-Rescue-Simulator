@@ -19,7 +19,7 @@ public class CameraFollow : MonoBehaviour
 
     [Header("Tilt angle (degrees, how much to look down)")]
     [Range(10f, 80f)]
-    public float tiltAngle = 40f;
+    public float tiltAngle = 12f;
 
     [Header("Smooth follow speed")]
     public float smoothSpeed = 9f;

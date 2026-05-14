@@ -85,9 +85,6 @@ public class InformationProximity : MonoBehaviour
         {
             SetBoardsActive(true);
             lastShowState = true;
-
-            // Reroute ambulance around obstacle
-            manager.RedirectAmbulance();
         }
     }
 

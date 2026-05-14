@@ -10,14 +10,13 @@ public class MissionManager : MonoBehaviour
     // Reference to the player avatar (e.g., FirstPersonController) that should stay still when ambulance moves
     public GameObject player;
     // Reference to the ambulance (the NavMeshAgent is already assigned as ambulanceAgent)
-    // public NavMeshAgent ambulanceAgent; // already exists
+
     public GameObject patient;
     public ParticleSystem bloodEffect;
     public NavMeshAgent ambulanceAgent;
     public Transform patientInsidePosition; 
 
-    [Header("Pathfinding")]
-    public List<Transform> waypoints;
+
     // List to keep track of all Doctor NPCs so we can hide them when the ambulance starts
     private List<GameObject> doctors = new List<GameObject>();
 
@@ -37,15 +36,7 @@ public class MissionManager : MonoBehaviour
     private bool isPatientFallen = false;
     private bool isLoaded = false;
 
-    [Header("Doctor Seat Offsets")]
-    [Tooltip("Local offset positions where doctors sit inside/on the ambulance")]
-    public Vector3[] doctorSeatOffsets = new Vector3[]
-    {
-        new Vector3(-1.2f, 0f, -0.5f),  // left side
-        new Vector3( 1.2f, 0f, -0.5f),  // right side
-        new Vector3(-1.2f, 0f,  0.5f),  // left rear
-        new Vector3( 1.2f, 0f,  0.5f),  // right rear
-    };
+
 
     void Start()
     {
@@ -63,7 +54,7 @@ public class MissionManager : MonoBehaviour
 
         // Auto‑create UI Canvas & Texts if they are not assigned
         SetupUIAndCamera();
-        // (Removed tag assignment to avoid UnityException: Tag 'Ambulance' is not defined)
+
     }
 
     void Update()
@@ -177,13 +168,7 @@ public class MissionManager : MonoBehaviour
             }
         }
 
-        // --- Start driving to the first waypoint ---
-        if (ambulanceAgent != null && waypoints.Count > 0)
-        {
-            ambulanceAgent.isStopped = false;
-            ambulanceAgent.SetDestination(waypoints[0].position);
-            Debug.Log("Driving to Obstacle...");
-        }
+        Debug.Log("Patient loaded. Ready for manual driving or AI toggle.");
     }
 
     /// <summary>
@@ -197,16 +182,7 @@ public class MissionManager : MonoBehaviour
             r.enabled = enabled;
     }
 
-    // This is called by the InformationProximity script automatically
-    public void RedirectAmbulance()
-    {
-        if (waypoints.Count >= 2)
-        {
-            // Index 1 is the Hospital
-            ambulanceAgent.SetDestination(waypoints[1].position);
-            Debug.Log("Path blocked! Heading to Hospital: " + waypoints[1].name);
-        }
-    }
+
     
     // Toggle between AI NavMesh and manual control
     private void ToggleControlMode()

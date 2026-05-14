@@ -14,9 +14,7 @@ public class BarrierTriggerZone : MonoBehaviour
     [Tooltip("Drag the info-cube or UI panel GameObjects here")]
     [SerializeField] private List<GameObject> infoBoards = new List<GameObject>();
 
-    [Header("Optional: Reroute Ambulance on Entry")]
-    [Tooltip("If true, tells MissionManager to redirect the ambulance when this zone is entered")]
-    [SerializeField] private bool rerouteOnEnter = false;
+
 
     void Awake()
     {
@@ -51,10 +49,7 @@ public class BarrierTriggerZone : MonoBehaviour
 
         SetBoardsActive(true);
 
-        if (rerouteOnEnter)
-        {
-            manager.RedirectAmbulance();
-        }
+
 
         Debug.Log($"[BarrierTriggerZone] Ambulance entered zone: {gameObject.name}");
     }

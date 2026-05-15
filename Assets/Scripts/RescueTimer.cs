@@ -81,7 +81,7 @@ public class RescueTimer : MonoBehaviour
         }
         else
         {
-            resultText.text = "Mission Failed!\nPatient Died";
+            resultText.text = "No, time's up! Mission Failed — the patient died.\nPlease play again.";
             resultText.color = Color.red;
             timerText.text = "00:00";
         }

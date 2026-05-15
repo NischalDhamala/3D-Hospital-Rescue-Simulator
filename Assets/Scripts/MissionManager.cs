@@ -54,7 +54,6 @@ public class MissionManager : MonoBehaviour
 
         // Auto‑create UI Canvas & Texts if they are not assigned
         SetupUIAndCamera();
-
     }
 
     void Update()
@@ -289,5 +288,6 @@ public class MissionManager : MonoBehaviour
         if (ambulanceAgent != null)
             ambulanceAgent.isStopped = true;
         Debug.Log("Mission Failed!");
+        
     }
 }

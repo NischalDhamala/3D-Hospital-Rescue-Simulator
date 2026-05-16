@@ -3,21 +3,21 @@ using UnityEngine.SceneManagement;
 
 public class ObstacleFail : MonoBehaviour
 {
-    public GameObject failText; // Drag FailMessage from Inspector here
+    public GameObject failText; // Inspector bata FailMessage tanera yaha halne
 
     private void OnTriggerEnter(Collider other)
     {
-        // If Ambulance (Player) touches this zone
+        // Yedi Ambulance (Player) le yo zone lai chhuyo vane
         if (other.CompareTag("Player"))
         {
-            failText.SetActive(true); // Show red text
-            Time.timeScale = 0f; // Stop the game
+            failText.SetActive(true); // Red text dekhaune
+            Time.timeScale = 0f; // Game stop garne
         }
     }
 
     void Update()
     {
-        // Restart on R press
+        // R thichda restart hune
         if (failText.activeSelf && Input.GetKeyDown(KeyCode.R))
         {
             Time.timeScale = 1f;

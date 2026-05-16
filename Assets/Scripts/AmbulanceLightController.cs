@@ -3,12 +3,12 @@ using UnityEngine;
 public class AmbulanceLightController : MonoBehaviour
 {
     public MeshRenderer lampRenderer;
-    public AudioSource sirenAudio; // New line: for Audio Source
+    public AudioSource sirenAudio; // Naya line: Audio Source ko lagi
     [ColorUsage(true, true)] public Color activeColor = Color.blue * 4.0f;
     public float blinkSpeed = 5f;
 
     private MaterialPropertyBlock _propBlock;
-    public bool _isStarted = false; // Public so Inspector can check it
+    public bool _isStarted = false; // Yeslai public banaye inspector bata check garna milchha
 
     void Awake()
     {
@@ -21,11 +21,11 @@ public class AmbulanceLightController : MonoBehaviour
         if (!_isStarted)
         {
             UpdateEmission(Color.black);
-            if (sirenAudio != null) sirenAudio.Stop(); // Stop siren
+            if (sirenAudio != null) sirenAudio.Stop(); // Siren banda garne
         }
         else
         {
-            if (sirenAudio != null) sirenAudio.Play(); // Start siren
+            if (sirenAudio != null) sirenAudio.Play(); // Siren suru garne
         }
     }
 

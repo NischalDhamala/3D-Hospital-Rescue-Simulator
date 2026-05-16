@@ -7,7 +7,7 @@ public class GoalPoint : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             Debug.Log("Hospital Reached!");
-            // RescueTimer script khojera MissionComplete function chalaucha
+            // Find RescueTimer script and call MissionComplete
             RescueTimer timer = FindFirstObjectByType<RescueTimer>();
             if (timer != null)
             {

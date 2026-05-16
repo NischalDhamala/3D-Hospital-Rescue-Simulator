@@ -5,9 +5,9 @@ using UnityEngine.SceneManagement;
 public class RescueTimer : MonoBehaviour
 {
     [Header("UI Settings")]
-    public Text timerText;          // Timer dikhaune text
-    public Text resultText;         // Passed/Failed dikhaune text
-    public GameObject startMessage; // "Press M to start" wala purano text
+    public Text timerText;          // Text to display timer
+    public Text resultText;         // Text to display Passed/Failed
+    public GameObject startMessage; // Old "Press M to start" text
 
     [Header("Time Settings")]
     public float timeRemaining = 120f; // 2 minutes
@@ -18,12 +18,12 @@ public class RescueTimer : MonoBehaviour
     void Start()
     {
         UpdateTimerDisplay();
-        resultText.gameObject.SetActive(false); // Suru ma result hide garne
+        resultText.gameObject.SetActive(false); // Hide result at start
     }
 
     void Update()
     {
-        // 'M' thichda timer start hune (Ambulance sangai)
+        // Timer starts on 'M' press (with ambulance)
         if (Input.GetKeyDown(KeyCode.M) && !isTimerRunning && !missionEnded)
         {
             isTimerRunning = true;
@@ -39,12 +39,12 @@ public class RescueTimer : MonoBehaviour
             }
             else
             {
-                // Time Up bhayo vane - Failed
+                // If time is up - Failed
                 FinishMission(false);
             }
         }
 
-        // Restart logic (R thichda)
+        // Restart logic (on R press)
         if (missionEnded && Input.GetKeyDown(KeyCode.R))
         {
             Time.timeScale = 1f;
@@ -59,7 +59,7 @@ public class RescueTimer : MonoBehaviour
         timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
     }
 
-    // Yo function Hospital ko trigger le call garcha
+    // Called by Hospital's trigger
     public void MissionComplete()
     {
         if (!missionEnded && isTimerRunning)
@@ -86,6 +86,6 @@ public class RescueTimer : MonoBehaviour
             timerText.text = "00:00";
         }
         
-        Time.timeScale = 0f; // Game freeze garne
+        Time.timeScale = 0f; // Freeze the game
     }
 }

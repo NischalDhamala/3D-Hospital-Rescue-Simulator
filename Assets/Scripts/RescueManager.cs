@@ -2,33 +2,33 @@ using UnityEngine;
 
 public class RescueManager : MonoBehaviour
 {
-    public GameObject rescueMessage; // Press F wala
-    public GameObject startAmbulanceMessage; // Press M wala
+    public GameObject rescueMessage; // The "Press F" message
+    public GameObject startAmbulanceMessage; // The "Press M" message
 
     void Start()
     {
-        // Game suru huda 'F' wala matrai dekhaune, 'M' wala hide garne
+        // Show only 'F' message at game start, hide 'M' message
         rescueMessage.SetActive(true);
         startAmbulanceMessage.SetActive(false);
     }
 
     void Update()
     {
-        // STEP 1: Yedi 'F' thichyo vane
+        // STEP 1: If 'F' is pressed
         if (rescueMessage.activeSelf && Input.GetKeyDown(KeyCode.F))
         {
-            rescueMessage.SetActive(false); // F wala hide भयो
-            startAmbulanceMessage.SetActive(true); // Aba M wala pop-up भयो
+            rescueMessage.SetActive(false); // F message hidden
+            startAmbulanceMessage.SetActive(true); // Now show M message
             Debug.Log("Patient Rescued! Now start the ambulance.");
         }
 
-        // STEP 2: Yedi 'M' thichyo vane (jaba tyo active hunchha)
+        // STEP 2: If 'M' is pressed (when active)
         else if (startAmbulanceMessage.activeSelf && Input.GetKeyDown(KeyCode.M))
         {
-            startAmbulanceMessage.SetActive(false); // M wala pani hide भयो
+            startAmbulanceMessage.SetActive(false); // M message also hidden
             Debug.Log("Ambulance Started!");
             
-            // Yaha timro ambulance start garne logic halna sakchau
+            // Add ambulance start logic here
         }
     }
 }
